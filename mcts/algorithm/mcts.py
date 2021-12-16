@@ -47,8 +47,39 @@ class MCTS:
     def run(self, step, rewards, arena):
         pass
 
-    def _select(self):
-        pass
+    def _select(self, node):
+        # Select this node if it has some pending actions
+        if len(node.pending_actions) != 0:
+            return node, True
+        # If all actions have been visited but empty children
+        elif not node.children:
+            return node, False
+        else:
+            # all actions are executed but more children to expand
+            exploitation_metrices = []
+            for node in node.children:
+                exploitation_metrices.append(
+                    node.reward / node.n_visits
+                )
+            eploration_metrices = []
+            for node in node.children:
+                eploration_metrices.append(
+                    np.sqrt(
+                        2.0 * np.log(node.n_visits) /
+                        node.n_visits
+                    )
+                )
+            cross_array = zip(exploitation_metrices, eploration_metrices)
+            # get UCB metric for all children
+            ucb_metric = []
+            for exploit, explore in cross_array:
+                ucb_metric.append(
+                    exploit + explore
+                )
+            max_index = np.argmax(ucb_metric)
+            selected_child, valid = self._select(node.children[max_index])
+            return selected_child, valid
+            
     
     def _expand(self, node):
         pass
