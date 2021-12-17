@@ -1,5 +1,6 @@
+from copy import copy
 import numpy as np
-
+import random
 
 class Bounds:
     def __init__(
@@ -81,11 +82,45 @@ class MCTS:
             return selected_child, valid
             
     
+    def _simulate(self, node):
+        random_primitive = random.randrange(0, len(node.pending_actions), 1)
+        primitive_id = node.pending_actions[random_primitive]
+        del node.pending_actions[random_primitive]
+
+        primitive = self.get_sweep(node.step, primitive_id)
+        coords = self.__mapping(primitive[:, :2], self.bounds, self.max_row, self.max_col)
+
+        valid_move = self._is_valid_move(primitive, coords)
+        # update validity
+
+        child = None
+        if valid_move:
+            step = primitive[-1]
+            rewards = self.rewards[coords[:, 0], coords[:, 1]]
+            reward = np.sum(rewards, axis=0)
+            node.add_child(Node(
+                step,
+                self.n_actions,
+                reward,
+                primitive,
+                node
+            ))
+        return child
+
     def _expand(self, node):
-        pass
-    
-    def _simulate(self):
-        pass
+        primitive_idx = self.n_actions // 2
+        step = copy(node.state)
+        moves = []
+        for _ in range(self.max_rollout):
+            primitive = self.get_sweep(node.step, primitive_idx)
+            step = primitive[-1]
+            moves.append(step)
+        moves = np.vstack(moves)
+        coords = self.__mapping(primitive[:, :2], self.bounds, self.max_row, self.max_col)
+        rewards = self.rewards[coords[:, 0], coords[:, 1]]
+        
+        return np.sum(rewards, axis=0) / self.max_rollout
+
     
     def _backpropagate(self, node, reward):
         node.reward += reward
@@ -93,8 +128,39 @@ class MCTS:
         if node.parent is not None:
             self._backpropagate(node.parent, reward)
 
-    def rollout(self, node):
-        pass
+    
+    def __mapping(self, xy, bounds, max_row, max_col):
+        # x -> j
+        j = (xy[:, 0] - bounds[0]) / (bounds[1] - bounds[0]) * max_col
+        j = np.round(j, decimals=6)
+        j[j < 0] = 0
+        j[j > max_col] = max_col
+        # y -> i
+        i = (xy[:, 1] - bounds[2]) / (bounds[3] - bounds[2]) * max_row
+        i = np.round(i, decimals=6)
+        i[i < 0] = 0
+        i[i > max_row] = max_row
+        # stack
+        ij = np.vstack([i.ravel(), j.ravel()]).T.astype(np.int)
+        return ij
 
+
+
+    def _is_valid_move(self, primitive, coords):
+        # Check whether this action is valid
+        is_inside_boundary = self.boundary_check(primitive)
+        is_outside_obstacle = self.collision_check(coords)
+        return is_inside_boundary and is_outside_obstacle
+    
+    def _boundary_check(self, primitive):
+        if np.any(primitive[:, 0] <= self.boundary[0]) \
+            or np.any(primitive[:, 0] >= self.boundary[1]) \
+            or np.any(primitive[:, 1] <= self.boundary[2])\
+            or np.any(primitive[:, 1] >= self.boundary[3]):
+            return False
+        return True
+
+    def collision_check(coords):
+        pass
 
     
