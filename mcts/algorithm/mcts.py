@@ -46,7 +46,37 @@ class MCTS:
         self.algorithm_bounds = algorithm_bounds
     
     def run(self, step, rewards, arena):
-        pass
+        self.rewards = rewards
+        self.arena = arena
+
+        self.root_node = Node(step, self.bounds.num_primitive_actions)
+
+        for _ in range(self.bounds.num_primitive_actions):
+            expandable, valid = self._select(self.root_node)
+            if not valid:
+                continue
+
+            new_child = self._simulate(expandable)
+            if not new_child:
+                self._backpropagate(expandable, self.self.default_penalty)
+            else:
+                reward = self._expand(new_child)
+                self._backpropagate(new_child, reward)
+
+            if len(self.root.children) == 0:
+                x, y, angle = step
+                print(f"No valid action at [{x: .1f} {y: .1f} {angle: .1f}]")
+                step[2] += np.pi / 8
+                return self.run(step, rewards, arena)
+        
+        if len(self.root_node.children) == 0:
+            return None
+        
+        max_index = np.argmax(
+            [node.reward / node.n_visits for node in self.root_node.children]
+        )
+        
+        return self.root_node.children[max_index]
 
     def _select(self, node):
         # Select this node if it has some pending actions
