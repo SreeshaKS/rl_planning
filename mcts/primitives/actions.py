@@ -1,5 +1,5 @@
 import numpy as np 
-from kinematics import Dubins
+from mcts.primitives.kinematics.dubins import Dubins
 
 def rotation(theta):
     return np.array(
@@ -10,36 +10,43 @@ def rotation(theta):
         ]
     )
 
+
 class PrimitiveActions:
     """
-    Compute trajectory and movements of the robot
-    Each primitive action consists of a series of configurations
+    Each primitive consists of a series of configurations.
     """
-    def __init__(self, horizon_range, step_count, animation_duration, velocity):
-        self.horizon_range = horizon_range
-        self.animation_duration = animation_duration
-        self.primitive_steps = np.linspace(horizon_range[0], horizon_range[1], step_count)
+
+    def __init__(self, angle_range, step_count, animation_duration, velocity=1.0):
+        assert len(angle_range) == 2
+        self.horizon_range = angle_range
+        self.count = step_count
+        self.duration = animation_duration
+        self.control_inputs = np.linspace(angle_range[0], angle_range[1], self.count)
         kinematics = Dubins(velocity)
-        primitive_steps = []
-        for step_index in range(step_count):
+        # Pre-computed primitive primitives
+        primitives = []
+        for action_idx in range(self.count):
             step = np.zeros(3)
             primitive = [step]
             for _ in range(animation_duration):
-                primitive.append(kinematics.get_sweep)
-            primitive_steps.append(primitive)
-        self.primitive_steps = np.array(primitive_steps)
-        
-        assert self.primitive_steps.shape == (step_count, animation_duration+1, 3)
-    
-    def get_primitive(self, step, step_primitive_index):
-        primitive = self.primitive_steps[step_primitive_index]
+                step = kinematics.get_sweep(step, self.control_inputs[action_idx])
+                primitive.append(step)
+            primitives.append(primitive)
+        self.primitives = np.asarray(primitives)
+        assert self.primitives.shape[0] == self.count
+        assert self.primitives.shape[1] == animation_duration + 1
+        assert self.primitives.shape[2] == 3
 
-        rotation_matrix = rotation(step[2])
-        primitive = np.matmul(primitive, rotation_matrix)
-        primitive[:,2] = (primitive[:,2] + step[2]) % (2 * np.pi)
+    def get_sweep(self, steps, action_idx):
+        assert steps.ndim == 1
+        action = self.primitives[action_idx]
+
+        # Rotation
+        rotation_mat = rotation(steps[2])
+        action = np.matmul(action, rotation_mat)
+        action[:, 2] = (action[:, 2] + steps[2]) % (2 * np.pi)
 
         # Translation
-        primitive[:, 0] += step[0]
-        primitive[:, 1] += step[1]
-        return primitive
-
+        action[:, 0] += steps[0]
+        action[:, 1] += steps[1]
+        return action
