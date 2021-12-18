@@ -18,7 +18,7 @@ Objective optimization for single and mlti-robot motion.
 <code> python main.py  </code>
 
 #### Approach
-![Monte Carlo tree search (MCTS)](https://github.iu.edu/sskuruva/as_engr-599_final_project/media/mcts.png)
+![Monte Carlo tree search (MCTS)](https://github.iu.edu/sskuruva/as_engr-599_final_project/blob/master/media/mcts.png)
 
 
 MCTS is conceptually very simple. A tree is build in an incremental and asymmetric
