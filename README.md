@@ -37,7 +37,7 @@ result of the random playouts.
 - [Convert a grey scale image to a numpy grid](https://github.iu.edu/sskuruva/as_engr-599_final_project/blob/master/image_to_grid.py)
 - [Trial output images for different reqard configurations](https://github.iu.edu/sskuruva/as_engr-599_final_project/tree/master/outputs)
 
-#### ![Example program ouput](https://github.iu.edu/sskuruva/as_engr-599_final_project/blob/master/output.png)
+#### ![Example program ouput](https://github.iu.edu/sskuruva/as_engr-599_final_project/blob/master/output_arena.png)
 
 #### Steps - 
 - Arena map is a .png grey scale image
