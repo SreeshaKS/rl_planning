@@ -1,6 +1,5 @@
 from copy import copy
 import numpy as np
-import random
 from mcts.primitives.actions import PrimitiveActions
 class Bounds:
     def __init__(
@@ -157,6 +156,29 @@ class MCTS:
             parent.add_child(child)
         return child
 
+    def _simulate(self, node):
+        # Default policy is moving forward
+        action_idx = self.n_primitives // 2
+        step = copy(node.step)
+        steps = []
+        for _ in range(self.rollout_bounds):
+            action = self.p_actions.get_sweep(step, action_idx)
+            step = action[-1]
+            steps.append(action)
+        steps = np.vstack(steps)
+        coords = self.__mapping(steps[:, :2], self.arena_bounds, self.row_bounds, self.col_bounds)
+        rewards = self.rewards[coords[:, 0], coords[:, 1]]
+        reward = np.sum(rewards, axis=0)
+        average_reward = reward / self.rollout_bounds
+        return average_reward
+
+    def _backpropagation(self, node, reward):
+        node.reward += reward
+        node.n_visits += 1
+        if node.parent is not None:
+            self._backpropagation(node.parent, reward)
+
+
     def __is_valid(self, coord, primitive):
         is_inside_boundary = self.__check_boundary_overlap(primitive)
         is_outside_obstacle = self.__is_move_in_obstacle(coord)
@@ -179,27 +201,7 @@ class MCTS:
             return False
         return True
 
-    def _simulate(self, node):
-        # Default policy is moving forward
-        action_idx = self.n_primitives // 2
-        step = copy(node.step)
-        steps = []
-        for _ in range(self.rollout_bounds):
-            action = self.p_actions.get_sweep(step, action_idx)
-            step = action[-1]
-            steps.append(action)
-        steps = np.vstack(steps)
-        coords = self.__mapping(steps[:, :2], self.arena_bounds, self.row_bounds, self.col_bounds)
-        rewards = self.rewards[coords[:, 0], coords[:, 1]]
-        reward = np.sum(rewards, axis=0)
-        average_reward = reward / self.rollout_bounds
-        return average_reward
-
-    def _backpropagation(self, node, reward):
-        node.reward += reward
-        node.n_visits += 1
-        if node.parent is not None:
-            self._backpropagation(node.parent, reward)
+    
 
     def get_paths(self, max_depth=None):
         
