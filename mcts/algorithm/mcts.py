@@ -93,12 +93,12 @@ class MCTS:
             if not is_valid:
                 continue
             # Expansion
-            new_node = self._simulation(explorable)
+            new_node = self._expand(explorable)
             # Simulation / rollout and backpropagation
             if new_node is None:  # No valid primitive available.
                 self._backpropagation(explorable, self.default_penalty)
             else:
-                self._backpropagation(new_node, self._expand(new_node))
+                self._backpropagation(new_node, self._simulate(new_node))
 
         if not self.root_node.children:
             x, y, angle = pose
@@ -151,7 +151,7 @@ class MCTS:
             return False
         return True
 
-    def _simulation(self, parent):
+    def _expand(self, parent):
         # Randomly select an primitive from the available primitives
         action_idx = parent.pending_primitives[0]
         del parent.pending_primitives[0]
@@ -173,7 +173,7 @@ class MCTS:
             parent.add_child(child)
         return child
 
-    def _expand(self, node):
+    def _simulate(self, node):
         # Default policy is moving forward
         action_idx = self.n_primitives // 2
         step = copy(node.step)

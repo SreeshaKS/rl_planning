@@ -44,7 +44,7 @@ for i in range(reward_matrix.shape[0]):
         
         y = coinFlip(reward_density)
         x = coinFlip(reward_density)
-
+        # change this to concentrate reqard at different corner of the map
         r_x = i
         r_y = j
         # r_x = reward_matrix.shape[1] - i
@@ -92,9 +92,10 @@ print("Yellow dots demonstrate the searching tree.")
 """
 Drawing phase space trajectories with arrows in matplotlib
 
-Reference - https://stackoverflow.com/questions/36607742/drawing-phase-space-trajectories-with-arrows-in-matplotlib
-https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.quiver.html
-https://problemsolvingwithpython.com/06-Plotting-with-Matplotlib/06.15-Quiver-and-Stream-Plots/
+Reference - 
+- https://stackoverflow.com/questions/36607742/drawing-phase-space-trajectories-with-arrows-in-matplotlib
+- https://matplotlib.org/3.1.1/api/_as_gen/matplotlib.pyplot.quiver.html
+- https://problemsolvingwithpython.com/06-Plotting-with-Matplotlib/06.15-Quiver-and-Stream-Plots/
 """
 fig, axes = plt.subplots(1, 2, figsize=(8, 4))
 

@@ -20,17 +20,10 @@ class Dubins:
 
     @property
     def velocity(self):
-        """
-        Velocity getter.
-        """
         return self.__velocity
 
     @velocity.setter
     def velocity(self, v):
-        """
-        Velocity setter.
-        """
-        assert v > 0.0
         self.__velocity = v
 
     def get_sweep(self, step, angle):
