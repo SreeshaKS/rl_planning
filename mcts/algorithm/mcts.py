@@ -75,7 +75,7 @@ class MCTS:
             self.rollout_bounds
         )
 
-    def run(self, pose, rewards, arena):
+    def run(self, state, rewards, arena):
         # Save reward map and arena map
         self.rewards = rewards
         self.arena = arena
@@ -84,7 +84,7 @@ class MCTS:
         self.col_bounds = self.rewards.shape[1] - 1
 
         # Initialize root_node node
-        self.root_node = Node(pose, self.n_primitives)
+        self.root_node = Node(state, self.n_primitives)
         # MCTS main loop
         for _ in range(self.n_iterations):
             # Selection
@@ -94,18 +94,14 @@ class MCTS:
                 continue
             # Expansion
             new_node = self._expand(explorable)
-            # Simulation / rollout and backpropagation
+            # Simulation backpropagation
             if new_node is None:  # No valid primitive available.
                 self._backpropagation(explorable, self.default_penalty)
             else:
                 self._backpropagation(new_node, self._simulate(new_node))
 
         if not self.root_node.children:
-            x, y, angle = pose
-            print(f"No valid primitive at [{x: .1f} {y: .1f} {angle: .1f}]")
-            pose[2] += np.pi / 8
-            print(f"Turn to [{pose[0]: .1f} {pose[1]: .1f} {pose[2]: .1f}]")
-            return self.run(pose, rewards, arena)
+            return self.run(state, rewards, arena)
         return self.best_action(self.root_node)
 
     def _select(self, node):
