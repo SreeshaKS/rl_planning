@@ -102,7 +102,13 @@ class MCTS:
 
         if not self.root_node.children:
             return self.run(state, rewards, arena)
-        return self.best_action(self.root_node)
+        
+        if not self.root_node.children:
+            return None
+
+        max_index = np.argmax([child.reward / child.n_visits for child in self.root_node.children])
+
+        return self.root_node.children[max_index].primitive
 
     def _select(self, node):
         # Select this node if it has some unvisited primitives
@@ -130,7 +136,33 @@ class MCTS:
             max_index = np.argmax(ucb_metric)
             return self._select(node.children[max_index])
 
-    def boundary_check(self, action):
+
+
+    def _expand(self, parent):
+        # Randomly select an primitive from the available primitives
+        action_idx = parent.pending_primitives[0]
+        del parent.pending_primitives[0]
+        primitive = self.p_actions.get_sweep(parent.step, action_idx)
+
+        # Check whether this primitive is valid
+        coords = self.__mapping(primitive[:, :2], self.arena_bounds, self.row_bounds, self.col_bounds)
+        is_valid_move = self.__is_valid(coords, primitive)
+        # Create the child node and attach it to its parent
+        child = None
+        if is_valid_move:
+            pose = primitive[-1]
+            rewards = self.rewards[coords[:, 0], coords[:, 1]]
+            reward = np.sum(rewards, axis=0)
+            child = Node(pose, self.n_primitives, reward, primitive, parent)
+            parent.add_child(child)
+        return child
+
+    def __is_valid(self, coord, primitive):
+        is_inside_boundary = self.__check_boundary_overlap(primitive)
+        is_outside_obstacle = self.__is_move_in_obstacle(coord)
+        return is_inside_boundary and is_outside_obstacle
+
+    def __check_boundary_overlap(self, action):
         if np.any(action[:, 0] <= self.arena_bounds[0]):
             return False
         if np.any(action[:, 0] >= self.arena_bounds[1]):
@@ -141,33 +173,11 @@ class MCTS:
             return False
         return True
 
-    def collision_check(self, coords):
+    def __is_move_in_obstacle(self, coords):
         occupied = self.arena[coords[:, 0], coords[:, 1]]
         if np.any(occupied):
             return False
         return True
-
-    def _expand(self, parent):
-        # Randomly select an primitive from the available primitives
-        action_idx = parent.pending_primitives[0]
-        del parent.pending_primitives[0]
-        action = self.p_actions.get_sweep(parent.step, action_idx)
-
-        # Check whether this primitive is valid
-        coords = self.__mapping(action[:, :2], self.arena_bounds, self.row_bounds, self.col_bounds)
-        is_inside_boundary = self.boundary_check(action)
-        is_outside_obstacle = self.collision_check(coords)
-        is_valid_action = is_inside_boundary and is_outside_obstacle
-
-        # Create the child node and attach it to its parent
-        child = None
-        if is_valid_action:
-            pose = action[-1]
-            rewards = self.rewards[coords[:, 0], coords[:, 1]]
-            reward = np.sum(rewards, axis=0)
-            child = Node(pose, self.n_primitives, reward, action, parent)
-            parent.add_child(child)
-        return child
 
     def _simulate(self, node):
         # Default policy is moving forward
@@ -190,24 +200,6 @@ class MCTS:
         node.n_visits += 1
         if node.parent is not None:
             self._backpropagation(node.parent, reward)
-
-    def best_action(self, node):
-        assert len(node.pending_primitives) == 0
-        if not node.children:
-            raise ValueError(
-                "No valid primitive in current steps!\n"
-                "You might need to implement some 'turn around' engineering "
-                "tricks to solve this problem.")
-
-        ## Uncomment this block to use n_visits instead of expected reward
-        #  n_visits = [child.n_visits for child in node.children]
-        #  idx = np.argmax(n_visits)
-        #  best_child = node.children[idx]
-        #  print("Number of visits: ", n_visits)
-
-        values = [child.reward / child.n_visits for child in node.children]
-
-        return node.children[np.argmax(values)].primitive
 
     def get_paths(self, max_depth=None):
         
@@ -244,6 +236,7 @@ class MCTS:
 
 
     def __mapping(self, xy, bounds, max_row, max_col):
+        
         # x -> j
         j = (xy[:, 0] - bounds[0]) / (bounds[1] - bounds[0]) * max_col
         j = np.round(j, decimals=6)
