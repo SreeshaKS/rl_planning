@@ -31,23 +31,21 @@ them
 - Backpropagation: Update the information of the nodes in the path from child to root using the
 result of the random playouts.
 
-#### Program
-- [Program Start](https://github.iu.edu/sskuruva/as_engr-599_final_project/blob/master/main.py)
-- [MCTS implementation](https://github.iu.edu/sskuruva/as_engr-599_final_project/blob/master/mcts/algorithm/mcts.py)
-- [Convert a grey scale image to a numpy grid](https://github.iu.edu/sskuruva/as_engr-599_final_project/blob/master/image_to_grid.py)
-- [Trial output images for different reqard configurations](https://github.iu.edu/sskuruva/as_engr-599_final_project/tree/master/outputs)
-
-#### ![Example program ouput](https://github.iu.edu/sskuruva/as_engr-599_final_project/blob/master/output_arena.png)
-
 #### Steps - 
 - Arena map is a .png grey scale image
-- Convert the image to a numpy matric
+- [Convert the image to a numpy grid](https://github.iu.edu/sskuruva/as_engr-599_final_project/blob/master/image_to_grid.py)
 - Construct a reward matrix using binomial distribution
 - Reward density is controlled by the number of trials a probabiltiy - p
 - Rewards can be concentrated as pockets around the arena or at specific places
 
 #### UCT
 UCT (Upper Confidence bounds applied to Trees), a popular algorithm that deals with the flaw of Monte-Carlo Tree Search, when a program may favor a losing move with only one or a few forced refutations, but due to the vast majority of other moves provides a better random playout score than other, better moves. UCT was introduced by Levente Kocsis and Csaba Szepesvári in 2006 , which accelerated the Monte-Carlo revolution in computer Go and games difficult to evaluate statically. If given infinite time and memory, UCT theoretically converges to Minimax.
+
+#### Program
+- [Program Start](https://github.iu.edu/sskuruva/as_engr-599_final_project/blob/master/main.py)
+- [MCTS implementation](https://github.iu.edu/sskuruva/as_engr-599_final_project/blob/master/mcts/algorithm/mcts.py)
+- [Convert a grey scale image to a numpy grid](https://github.iu.edu/sskuruva/as_engr-599_final_project/blob/master/image_to_grid.py)
+- [Trial output images for different reqard configurations](https://github.iu.edu/sskuruva/as_engr-599_final_project/tree/master/outputs)
 
 #### Future considerations
 ##### MCTS parallelization
