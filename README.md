@@ -8,7 +8,7 @@
 <br>
 
 ***
-### [Monte Carlo Tree Search for robot objective planning](https://github.iu.edu/sskuruva/as_engr-599_final_project)
+### [Monte Carlo Tree Search for robot objective planning](https://github.com/SreeshaKS/rl_planning)
 ***
 
 #### Problem Statement:
@@ -18,7 +18,7 @@ Objective optimization for single and mlti-robot motion.
 <code> python main.py  </code>
 
 #### Approach
-![Monte Carlo tree search (MCTS)](https://github.iu.edu/sskuruva/as_engr-599_final_project/blob/master/media/mcts.png)
+![Monte Carlo tree search (MCTS)](https://github.com/SreeshaKS/rl_planning/blob/master/media/mcts.png)
 
 
 MCTS is conceptually very simple. A tree is build in an incremental and asymmetric
@@ -33,7 +33,7 @@ result of the random playouts.
 
 #### Steps - 
 - Arena map is a .png grey scale image
-- [Convert the image to a numpy grid](https://github.iu.edu/sskuruva/as_engr-599_final_project/blob/master/image_to_grid.py)
+- [Convert the image to a numpy grid](https://github.com/SreeshaKS/rl_planning/blob/master/image_to_grid.py)
 - Construct a reward matrix using binomial distribution
 - Reward density is controlled by the number of trials a probabiltiy - p
 - Rewards can be concentrated as pockets around the arena or at specific places
@@ -42,10 +42,10 @@ result of the random playouts.
 UCT (Upper Confidence bounds applied to Trees), a popular algorithm that deals with the flaw of Monte-Carlo Tree Search, when a program may favor a losing move with only one or a few forced refutations, but due to the vast majority of other moves provides a better random playout score than other, better moves. UCT was introduced by Levente Kocsis and Csaba Szepesvári in 2006 , which accelerated the Monte-Carlo revolution in computer Go and games difficult to evaluate statically. If given infinite time and memory, UCT theoretically converges to Minimax.
 
 #### Program
-- [Program Start](https://github.iu.edu/sskuruva/as_engr-599_final_project/blob/master/main.py)
-- [MCTS implementation](https://github.iu.edu/sskuruva/as_engr-599_final_project/blob/master/mcts/algorithm/mcts.py)
-- [Convert a grey scale image to a numpy grid](https://github.iu.edu/sskuruva/as_engr-599_final_project/blob/master/image_to_grid.py)
-- [Trial output images for different reqard configurations](https://github.iu.edu/sskuruva/as_engr-599_final_project/tree/master/outputs)
+- [Program Start](https://github.com/SreeshaKS/rl_planning/blob/master/main.py)
+- [MCTS implementation](https://github.com/SreeshaKS/rl_planning/blob/master/mcts/algorithm/mcts.py)
+- [Convert a grey scale image to a numpy grid](https://github.com/SreeshaKS/rl_planning/blob/master/image_to_grid.py)
+- [Trial output images for different reqard configurations](https://github.com/SreeshaKS/rl_planning/tree/master/outputs)
 
 #### Future considerations
 ##### MCTS parallelization
